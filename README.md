@@ -27,27 +27,35 @@
 
 ## Быстрый старт
 
-1) Создай файл окружения:
+1) Создайте файл окружения:
 ```bash
 cp .env.example .env
-Запусти стек:
+
+2) Запустите стек:
 docker compose up --build
-Применить миграции и создать администратора:
+
+3) Примените миграции и создать администратора:
 docker compose exec web python manage.py migrate
 docker compose exec web python manage.py createsuperuser
 (Опционально) собрать статику:
 docker compose exec web python manage.py collectstatic --noinput
-Зайти в админку:
+
+4) Зайдите в админку:
 http://localhost:8000/admin/
-Создай тестовую команду, список и пару задач.
-Привязка Telegram
-Напиши боту /link — бот вернёт 6-значный код.
-В веб-приложении открой страницу привязки (или профиль) и введи код — произойдёт связывание с твоим пользователем.
+Создайте тестовую команду, список и пару задач.
+
+5) Привязка Telegram
+Напишите боту /link — бот вернёт 6-значный код.
+В веб-приложении откройте страницу привязки (или профиль) и введите код — произойдёт связывание с пользователем.
+
 Проверка:
-Если в вебе ты онлайн, уведомление будет тостом в интерфейсе.
+Если в вебе онлайн, уведомление будет тостом в интерфейсе.
 Если офлайн (нет heartbeat в последние 30 сек), придёт сообщение в Telegram.
-Переменные окружения (.env)
-Смотри .env.example, основные:
+
+## Переменные окружения (.env)
+
+.env.example, основные:
+
 DEBUG — 0/1
 SECRET_KEY — секрет Django
 ALLOWED_HOSTS — хосты, через запятую (* для локали)
@@ -57,7 +65,9 @@ CHANNEL_LAYER_URL — redis://redis:6379/1
 SERVICE_TOKEN — сервисный токен (бот → API)
 BOT_TOKEN — токен Telegram-бота (от @BotFather)
 API_BASE — http://web:8000/api (для контейнера бота)
-Реальное время (Channels)
+
+## Реальное время (Channels)
+
 User socket: /ws/user/ — тосты/события для конкретного пользователя.
 Team socket: /ws/team/<team_id>/ — широковещательные события для команды.
 Клиент шлёт heartbeat, чтобы сервер понимал “онлайн ли пользователь”.
@@ -74,7 +84,9 @@ POST /api/tg/tasks/<id>/done/ — бот завершает задачу.
 whitenoise не найден: проверь, что он есть в requirements.txt, пересобери образ.
 AlreadyRegistered в админке: убедись, что модели регистрируются один раз.
 WS/CSRF: укажи CSRF_TRUSTED_ORIGINS=http://localhost:8000 в .env.
-Скрипты для проверки (полезно ревьюеру)
+
+## Скрипты для проверки 
+
 # миграции
 docker compose exec web python manage.py migrate
 
@@ -86,7 +98,4 @@ docker compose logs -f worker
 
 # проверка beat (периодика)
 docker compose logs -f beat
-Лицензия
-MIT
 
----
