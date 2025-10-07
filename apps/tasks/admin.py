@@ -1,4 +1,3 @@
-# apps/tasks/admin.py
 from django.contrib import admin
 from .models import Task, TaskList, Team, NotificationLog, TelegramLink, Presence
 
@@ -9,7 +8,6 @@ class TaskAdmin(admin.ModelAdmin):
     search_fields = ("title", "description")
     autocomplete_fields = ("list", "assignee", "created_by")
 
-    # если пользователь создаёт задачу через админку — автозаполним автора
     def save_model(self, request, obj, form, change):
         if not obj.created_by_id:
             obj.created_by = request.user

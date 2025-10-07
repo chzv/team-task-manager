@@ -1,4 +1,3 @@
-# apps/tasks/services/telegram.py
 import os
 import logging
 import requests

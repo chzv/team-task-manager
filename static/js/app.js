@@ -1,4 +1,3 @@
-// Утилиты
 const qs = (s, p=document)=>p.querySelector(s);
 const qsa = (s, p=document)=>[...p.querySelectorAll(s)];
 function toast(msg){ const t=qs('#toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 1800); }
@@ -9,7 +8,6 @@ async function api(path, opts={}){
   return r.status===204? null : r.json();
 }
 
-// Рендер
 function taskItem(t){
   const overdue = t.due_at && !t.is_done && new Date(t.due_at) < new Date();
   return `<li class="task" data-id="${t.id}">
@@ -42,8 +40,6 @@ async function loadTasks(){
     if (q) params.set('q', q);
   
     const data = await api(`/tasks/?${params.toString()}`);
-  
-    // DRF отдаёт объект с results; но если пагинация будет выключена — придёт массив
     const items = Array.isArray(data) ? data : (data.results || []);
   
     qs('#tasks').innerHTML = items.map(taskItem).join('');

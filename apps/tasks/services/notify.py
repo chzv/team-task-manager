@@ -1,4 +1,3 @@
-# apps/tasks/services/notify.py  (чистая версия)
 from django.conf import settings
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer

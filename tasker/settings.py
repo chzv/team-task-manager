@@ -71,7 +71,6 @@ STATICFILES_DIRS = [BASE_DIR/"static"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# DRF (сессионная аутентификация для веба)
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
@@ -83,7 +82,6 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 20,
 }
 
-# Channels/Redis
 REDIS_URL = env("REDIS_URL")
 CHANNEL_LAYERS = {
     "default": {
@@ -103,6 +101,5 @@ CELERY_BEAT_SCHEDULE = {
     }
 }
 
-SERVICE_TOKEN = env("SERVICE_TOKEN")  # серверный токен для запросов от бота
-
+SERVICE_TOKEN = env("SERVICE_TOKEN")  
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"

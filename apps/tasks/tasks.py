@@ -1,4 +1,3 @@
-# apps/tasks/tasks.py
 from celery import shared_task
 from django.utils import timezone
 from .models import Task, Presence, NotificationLog, TelegramLink
@@ -13,7 +12,6 @@ def _web_active(user_id, seconds=None):
 
 @shared_task(name="apps.tasks.tasks.notify_assigned_task")
 def notify_assigned_task(task_id: int, user_id: int) -> None:
-    """Отправка уведомления о назначении задачи (если веб неактивен)."""
     link = TelegramLink.objects.filter(user_id=user_id).first()
     if link and not _web_active(user_id):
         send_tg_message_if_needed(link.tg_user_id, f"Вам назначена задача #{task_id}")

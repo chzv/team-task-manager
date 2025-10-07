@@ -1,13 +1,16 @@
 from rest_framework import viewsets, permissions, decorators, response, status
+from rest_framework.views import APIView
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404
+
 from .models import Team, TaskList, Task, TelegramLink
 from .serializers import TeamSerializer, TaskListSerializer, TaskSerializer
 from .permissions import IsTeamMember
 from .services.events import emit_task_event
-from rest_framework.views import APIView
-from django.views.decorators.csrf import ensure_csrf_cookie
 from .tasks import notify_assigned_task
 
 class TeamViewSet(viewsets.ModelViewSet):
@@ -31,19 +34,16 @@ class TaskViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         qs = super().get_queryset().filter(list__team__members=self.request.user)
 
-        # ?list=<id>
         list_id = self.request.query_params.get("list")
         if list_id:
             qs = qs.filter(list_id=list_id)
 
-        # ?filter=me|open|all
         flt = self.request.query_params.get("filter")
         if flt == "me":
             qs = qs.filter(assignee=self.request.user, is_done=False)
         elif flt == "open":
             qs = qs.filter(is_done=False)
 
-        # ?q=<substring>
         q = self.request.query_params.get("q")
         if q:
             qs = qs.filter(title__icontains=q)
@@ -62,7 +62,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         if task.assignee_id and task.assignee_id != old.assignee_id:
             notify_assigned_task.delay(task.id, task.assignee_id)
         emit_task_event(task, "updated")
-         
+
     @decorators.action(detail=True, methods=["post"])
     def done(self, request, pk=None):
         task = self.get_object()
@@ -79,7 +79,6 @@ class TaskViewSet(viewsets.ModelViewSet):
 
 # ---- Telegram link endpoints ----
 from rest_framework.response import Response
-from rest_framework import status
 
 class CreateTGCode(APIView):
     authentication_classes = []
@@ -116,10 +115,7 @@ class ConfirmTGLink(APIView):
         return response.Response({"status":"linked"})
 
 class TGProxyUserAPIView(APIView):
-    """
-    Проксируем запросы бота к методам, где нужно знать пользователя по tg_user_id.
-    """
-    authentication_classes = []  # проверяем сервисный токен
+    authentication_classes = [] 
     permission_classes = []
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
@@ -150,11 +146,6 @@ class TGMarkDone(TGProxyUserAPIView):
         task.save(update_fields=["is_done","updated_at"])
         emit_task_event(task, "updated")
         return response.Response({"status":"ok"})
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.models import User
-from .models import Team, TaskList
 
 @ensure_csrf_cookie
 @login_required

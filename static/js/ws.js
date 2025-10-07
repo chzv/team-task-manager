@@ -1,4 +1,3 @@
-// ping user-канала (presence)
 const wsProto = location.protocol === "https:" ? "wss" : "ws";
 const wsUser = new WebSocket(`${wsProto}://${location.host}/ws/user/`);
 wsUser.onopen = () => setInterval(() => {
@@ -12,7 +11,6 @@ wsUser.onmessage = (e) => {
   }
 };
 
-// Командная комната
 (function connectTeam(teamId){
   const ws = new WebSocket(`${wsProto}://${location.host}/ws/team/${teamId}/`);
 
