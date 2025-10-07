@@ -1,0 +1,22 @@
+# Python / Django
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.log
+
+# Django static
+/staticfiles/
+
+# Envs
+.env
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Byte-compiled
+*.egg-info/

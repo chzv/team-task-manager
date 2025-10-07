@@ -1,0 +1,78 @@
+# docker-compose.yml
+services:
+  web:
+    build: .
+    command: bash -lc "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 tasker.asgi:application"
+    volumes:
+      - .:/code
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: celery -A tasker worker -l info
+    volumes:
+      - .:/code
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+  beat:
+    build: .
+    command: celery -A tasker beat -l info
+    volumes:
+      - .:/code
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+  bot:
+    build: .
+    command: python bot/bot.py
+    volumes:
+      - .:/code
+    env_file:
+      - .env
+    depends_on:
+      - web
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: tasker
+      POSTGRES_PASSWORD: tasker
+      POSTGRES_DB: tasker
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"  
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  pg-data:
+  redis-data:

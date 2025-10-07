@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<section class="card">
+  <div class="row between center">
+    <h1 class="title">Команда: {{ team.name }} <span class="muted">(#{{ team.id }})</span></h1>
+    <button id="btn-new" class="btn primary">+ Новая задача</button>
+  </div>
+
+  <div class="filters row gap">
+    <select id="listFilter" class="input">
+      <option value="">Все списки</option>
+      {% for lst in lists %}
+        <option value="{{ lst.id }}">{{ lst.name }}</option>
+      {% endfor %}
+    </select>
+    <select id="onlyMine" class="input">
+      <option value="all">Все</option>
+      <option value="me">Только мои</option>
+      <option value="open">Незавершённые</option>
+    </select>
+    <input id="search" class="input" placeholder="Поиск по названию…">
+  </div>
+
+  <ul id="tasks" class="tasks"></ul>
+</section>
+
+<dialog id="taskModal" class="modal">
+  <form method="dialog" class="modal-card" id="taskForm">
+    <h3 id="modalTitle">Новая задача</h3>
+    <input type="hidden" id="taskId">
+    <label class="lbl">Название
+      <input class="input" id="title" required maxlength="120">
+    </label>
+    <label class="lbl">Описание
+      <textarea class="input" id="description" rows="3"></textarea>
+    </label>
+    <div class="row gap">
+      <label class="lbl grow">Список
+        <select id="list" class="input" required>
+          {% for lst in lists %}
+            <option value="{{ lst.id }}">{{ lst.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="lbl grow">Исполнитель
+        <select id="assignee" class="input">
+          <option value="">— не назначено —</option>
+          {% for u in members %}
+            <option value="{{ u.id }}">{{ u.username }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="lbl">Срок
+        <input id="due_at" type="datetime-local" class="input">
+      </label>
+    </div>
+    <div class="row end gap">
+      <button class="btn" value="cancel">Отмена</button>
+      <button class="btn primary" id="submitBtn" value="default">Сохранить</button>
+    </div>
+  </form>
+</dialog>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    window.TEAM_ID = {{ team.id }};
+    window.API = "/api";
+  </script>
+  <script src="{% static 'js/ws.js' %}"></script>
+{% endblock %}
